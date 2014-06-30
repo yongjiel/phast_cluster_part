@@ -1,0 +1,8 @@
+DB/
+tmp/
+tmp1/
+result_tmp/
+z_*
+transfer_file_to_westgrid.pl
+zz_*
+cgi/.svn/

@@ -1,0 +1,7 @@
+0   0   1,15   *   *   perl /home/prion/phage/cgi/update_database.pl 2>&1 |cat >>/dev/null
+0   0   *   *   *  perl /home/prion/phage/cgi/cleanup_tmp.pl  /home/prion/phage/tmp
+0   0   *   *   *  perl /home/prion/phage/cgi/cleanup.pl /home/prion/phage/result_tmp
+0   0   2,16   *   *   perl /home/prion/PPTDB_update/update_PPTDB_thrifty_db.pl
+#*/2   *   *   *   * 		perl  /home/prion/phage/z_bacmap_accession/z_change_accession_gene_card_remote.pl
+0   1   1   *   *     perl /home/prion/unitpro/z_fasta_db/download_unitpro_and_formatdb.p
+

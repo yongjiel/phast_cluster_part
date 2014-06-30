@@ -1,0 +1,6 @@
+This is the cluster side of phast web server.
+Install location: prion@botha1.cs.ualberta.ca:phage/.
+Prerequesite: scp-key from phast@phast.wishartlab.com in .ssh/.
+
+crontab -l for the server:
+0   0   1,15   *   *   perl /home/prion/phage/cgi/update_database.pl
