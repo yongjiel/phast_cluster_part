@@ -5,13 +5,14 @@
 #
 #        USAGE:  ./get_combine.pl  
 #
-#  DESCRIPTION:  this program will get gbk contig files and combine to one
+#  DESCRIPTION:  This program will get gbk contig files and combine them into a
+#                single genome.
 #
 #      OPTIONS:  ---
 # REQUIREMENTS:  ---
 #         BUGS:  ---
 #        NOTES:  ---
-#       AUTHOR:  YOUR NAME (), 
+#       AUTHOR:  Jack Liang
 #      COMPANY:  
 #      VERSION:  1.0
 #      CREATED:  04/03/2013 12:16:04 PM
