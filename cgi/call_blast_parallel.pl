@@ -4,7 +4,7 @@
 # call blast in pararllel
 use File::Basename;
 
-my $cpu_number = 28;
+my $core_number = 56;
 my $cgi_dir = "/home/prion/phage/cgi";
 my $faa_file = $ARGV[0];
 my $log_file = "$faa_file.log";
@@ -21,7 +21,7 @@ my @arr = split (">", `cat $faa_file`);
 my $piece=0;
 for(my $i=0; $i <=$#arr; $i++){
 	next if ($arr[$i] eq '' or $arr[$i]=~/NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN/s);
-	my $sufix  = ($i % $cpu_number)+1;
+	my $sufix  = ($i % $core_number)+1;
 	open(OUT, ">> $faa_file\_$sufix");
 	print OUT '>'. $arr[$i];
 	close OUT;
@@ -32,6 +32,8 @@ for(my $i=0; $i <=$#arr; $i++){
 if ($piece ==0){
 	system("echo 'Nothing in .faa file. Program exit!' >>$log_file");
 	exit(0);
+}else{
+	system("echo 'Split .faa file into $piece!' >> $log_file");
 }
 # call single_node_blast
 chdir $dir;

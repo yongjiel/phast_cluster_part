@@ -15,6 +15,8 @@ system("cat $db_dir/temp_pro/prophage.db  $db_dir/virus.db > $db_dir/prophage_vi
 chdir $db_dir;
 my $error_flag = 0;
 if (-s "prophage_virus.db"){
+	print "Make header lines file\n";
+	system("grep '>' prophage_virus.db > prophage_virus_header_lines.db");
 	print "formatdbing prophage_virus.db\n";
 	system(" /home/prion/blast/bin/formatdb  -i    prophage_virus.db -s T");
 }else{

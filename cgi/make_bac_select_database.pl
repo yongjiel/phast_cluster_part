@@ -93,6 +93,8 @@ close OUT;
 system("mv -f bacteria_all_select.db.tmp  bacteria_all_select.db");
 my $error_flag = 0;
 if (-s "bacteria_all_select.db"){
+	system("echo 'make bacteria_all_select_header_lines.db'");
+	system("grep '>' bacteria_all_select.db > bacteria_all_select_header_lines.db");
 	system("rm -rf bacteria_all_select.db.*");
 	system(" /home/prion/blast/bin/formatdb  -i  bacteria_all_select.db -o T ");
 	print "Copy bacteria_all_select* to upper level\n";

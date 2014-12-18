@@ -2,12 +2,13 @@
 
 use Bio::Perl;
 use Bio::DB::GenBank;
-
-#Usage: perl get_gbk.pl  <accession_number or gi number>  <tmp_dir>
-# <flag> is -g or -a ; -g means using gi number, and -a using accession number
+if (scalar @ARGV != 2){
+	print "Usage: perl get_gbk.pl  <accession_number or gi number>  <tmp_dir>\n";
+	exit(-1);
+}
 
 my $dir = $ARGV[1];
-my $flag = '';
+my $flag = ''; # <flag> is -g or -a ; -g means using gi number, and -a using accession number
 if ($ARGV[0]=~/^\d+$/){
 	$flag = '-g';
 }else{

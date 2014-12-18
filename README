@@ -1,4 +1,8 @@
-have to add result_tmp for storing the results of cases
-have to add tmp to install all the blast results for cases
+You have to do these to restore the server:
 
-have to come with PHAST front end to make an entire server.
+1. this package has to be install under home dir. Our home dir is /home/prion
+2. have to add result_tmp for storing the results of cases in this package.
+3. have to add tmp to install all the blast results for cases in this package.
+4. install blast and formatdb. We install them here /home/prion/blast/bin/.
+5. modify the blast path and formatdb path in single_blast.pl, make_bac_select_database.pl,make_prophage_virus_db.pl.
+
