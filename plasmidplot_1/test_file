@@ -1,9 +1,0 @@
->Burkholderia mallei ATCC 23344 chromosome 1, complete sequence [asmbl_id: NC_006348], 3510148 
-from       to      strand      match
-section 788071     788904      -1         PHAGE_shigel_Sf6 
-section 790189     791676      -2         PHAGE_burkho_phi1026b
-section 1450524    1451471    +3           PHAGE_prochl_PSSM2
-section 1451478    1452523    +3           PHAGE_prochl_PSSM2
-
-detail  780000     800000
-detail  1450000    1453000
