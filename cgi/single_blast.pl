@@ -8,6 +8,8 @@
 use File::Basename;
 # run blast on a single node of our cluster.
 
+print `hostname`;
+
 my $faa_file_basename = $ARGV[0];
 my $database = $ARGV[1];
 

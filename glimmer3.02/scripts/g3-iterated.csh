@@ -1,4 +1,5 @@
 #!/bin/csh
+unset history; unset savehist
 
 if ($#argv < 2) then
   echo "Usage:  g3-iterated.csh  <genome> <tag>"
@@ -123,10 +124,13 @@ step8:
 # Run second Glimmer
 echo "Step 8 of ${numsteps}:  Running second Glimmer3"
 $glimmerpath/glimmer3 $glimmeropts -b $tag.motif -P $startuse $genome $tag.icm $tag
+echo "glimmer3 run is done"
 if  ($status != 0)  then
   echo "Failed to run Glimmer3"
   exit
 endif
 if  ($onestep == "only")  exit
-
-
+echo "Exit from  g3-iterated.csh"
+#echo "kill -9 $$"
+#kill -9 $$
+exit

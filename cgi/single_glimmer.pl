@@ -31,7 +31,7 @@ use warnings;
 my $fna_file_basename = $ARGV[0];
 
 my $id = $ENV{SGE_TASK_ID}; # Batch-scheduler assigns this.
-
+print `hostname`;
 my $glimmer_exec = "/home/prion/phage/glimmer3.02/scripts/g3-iterated.csh";
 system("csh $glimmer_exec  $fna_file_basename\_$id   $fna_file_basename\_$id");
 exit;

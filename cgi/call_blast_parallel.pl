@@ -1,6 +1,5 @@
 #!/usr/bin/perl -w
-
-
+# this program uses one.q and calls sing_blast.pl in qsub
 # call blast in pararllel
 use File::Basename;
 
@@ -18,9 +17,9 @@ my $database = $ARGV[1];
 
 # cut faa file into pieces.
 my @arr = split (">", `cat $faa_file`);
+@arr = grep ($_ !~ /^[\n\s]*$/, @arr);
 my $piece=0;
 for(my $i=0; $i <=$#arr; $i++){
-	next if ($arr[$i] eq '' or $arr[$i]=~/NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN/s);
 	my $sufix  = ($i % $core_number)+1;
 	open(OUT, ">> $faa_file\_$sufix");
 	print OUT '>'. $arr[$i];
@@ -29,7 +28,7 @@ for(my $i=0; $i <=$#arr; $i++){
 		$piece=$sufix;
 	}
 }
-if ($piece ==0){
+if ($piece == 0){
 	system("echo 'Nothing in .faa file. Program exit!' >>$log_file");
 	exit(0);
 }else{

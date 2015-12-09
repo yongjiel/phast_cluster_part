@@ -92,4 +92,5 @@ if  ($status != 0)  then
 endif
 if  ($onestep == "only")  exit
 
+exit
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #usage : perl call_blast_parallel_full.pl <full_path_faa_file> <full_path_DB>
-
+# this program calls full_single_blast.pl and uses all.q in qsub.
 # call blast in pararllel
 use File::Basename;
 
@@ -19,9 +19,9 @@ my $database = $ARGV[1];
 
 # cut faa file into pieces.
 my @arr = split (">", `cat $faa_file`);
+@arr = grep ($_ !~ /^[\n\s]*$/ , @arr);
 my $piece=0;
 for(my $i=0; $i <=$#arr; $i++){
-  next if ($arr[$i] eq '' or $arr[$i]=~/NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN/s);
   my $sufix  = ($i % $core_number)+1;
   open(OUT, ">> $faa_file\_$sufix");
   print OUT '>'. $arr[$i];
