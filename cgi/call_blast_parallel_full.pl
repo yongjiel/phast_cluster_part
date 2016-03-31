@@ -37,11 +37,20 @@ if ($piece ==0){
 	system("echo 'Split .faa file into $piece!' >> $log_file");
 }
 
+# Generate string specifying which nodes to run on.
+my $node_set = '';
+for (my $i = 1; $i <= 10; $i++) { # restrict to botha-w1 through botha-w10
+	$node_set .= 'botha-w' . $i;
+	if ($i != 10) {
+		$node_set .= '|';
+	}
+}
+
 # call single_node_blast
 chdir $dir;
 system("echo change to $dir >>$log_file");
-system("echo 'qsub -t 1-$piece  -q all.q -sync yes  $cgi_dir/full_single_blast.pl  $faa_file_basename $database' >> $log_file");
-system("qsub -t 1-$piece  -q all.q -sync yes  $cgi_dir/full_single_blast.pl  $faa_file_basename $database")==0 or system("echo $! >> $log_file");; 
+system("echo 'qsub -t 1-$piece  -q all.q -l h=\"$node_set\" -sync yes  $cgi_dir/full_single_blast.pl  $faa_file_basename $database' >> $log_file");
+system("qsub -t 1-$piece  -q all.q -l h=\"$node_set\" -sync yes  $cgi_dir/full_single_blast.pl  $faa_file_basename $database")==0 or system("echo $! >> $log_file");; 
 
 #combine all the files
 my $file_str='';

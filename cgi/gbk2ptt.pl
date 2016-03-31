@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
+use lib "/home/prion/phage/bioperl-bioperl-live-f568464";
 use Bio::SeqIO;
 use Bio::Perl;
 # This script takes a GenBank file as input, and produces a

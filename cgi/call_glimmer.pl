@@ -66,11 +66,22 @@ while(1){
 	}
 }
 system("echo 'piece $count' >> $log_file");
+
+# Generate string specifying which nodes to run on.
+my $last_node = 8; # max cluster node number to use
+my $node_set = '';
+for (my $i = 1; $i <= $last_node; $i++) { # restrict to particular nodes
+	$node_set .= 'botha-w' . $i;
+	if ($i != $last_node) {
+		$node_set .= '|';
+	}
+}
+
 # call glimmer pararllel
 chdir $dir;
 system("echo change to $dir >> $log_file");
-system("echo qsub -t 1-$count   -q one.q -sync yes  $cgi_dir/single_glimmer.pl  $fna_file_basename >> $log_file");
-system("qsub -t 1-$count -q one.q  -sync yes  $cgi_dir/single_glimmer.pl  $fna_file_basename")==0 or system("echo $! >> $log_file");
+system("echo qsub -t 1-$count   -q one.q -l h=\"$node_set\" -sync yes  $cgi_dir/single_glimmer.pl  $fna_file_basename >> $log_file");
+system("qsub -t 1-$count -q one.q -l h=\"$node_set\" -sync yes  $cgi_dir/single_glimmer.pl  $fna_file_basename")==0 or system("echo $! >> $log_file");
 open(OUT, ">$fna_file.predict") or die "Cannot write $fna_file.predict";
 print OUT $header;
 my $orf_count =0;

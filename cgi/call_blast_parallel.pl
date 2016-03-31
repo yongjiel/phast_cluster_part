@@ -13,6 +13,9 @@ if (-e $log_file){
 my $dir = dirname($faa_file);
 my $faa_file_basename= basename($faa_file);
 
+my $last_node = 8; # max cluster node number to use
+$core_number = 32; # update core number if working with more nodes
+
 my $database = $ARGV[1];
 
 # cut faa file into pieces.
@@ -34,11 +37,21 @@ if ($piece == 0){
 }else{
 	system("echo 'Split .faa file into $piece!' >> $log_file");
 }
+
+# Generate string specifying which nodes to run on.
+my $node_set = '';
+for (my $i = 1; $i <= $last_node; $i++) { # restrict to particular nodes
+	$node_set .= 'botha-w' . $i;
+	if ($i != $last_node) {
+		$node_set .= '|';
+	}
+}
+
 # call single_node_blast
 chdir $dir;
 system("echo change to $dir >>$log_file");
-system("echo 'qsub -t 1-$piece  -pe \'*\' 1 -q one.q -sync yes  $cgi_dir/single_blast.pl  $faa_file_basename $database' >> $log_file");
-system("qsub -t 1-$piece  -pe \'*\' 1 -q one.q -sync yes  $cgi_dir/single_blast.pl  $faa_file_basename $database")==0 or system("echo $! >> $log_file");; 
+system("echo 'qsub -t 1-$piece  -pe smp 1 -q one.q -l h=\"$node_set\" -sync yes  $cgi_dir/single_blast.pl  $faa_file_basename $database' >> $log_file");
+system("qsub -t 1-$piece  -pe smp 1 -q one.q -l h=\"$node_set\" -sync yes  $cgi_dir/single_blast.pl  $faa_file_basename $database")==0 or system("echo $! >> $log_file");; 
 
 #combine all the files
 my $file_str='';

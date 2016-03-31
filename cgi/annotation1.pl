@@ -11,8 +11,8 @@ print "\nCall annotation.pl <NC number>  <dir-name>  <virus_db> <bac_db> <non_hi
 my $t1 = time();
 my $NC=$ARGV[0];
 my $num =$ARGV[1];
-my $virus_db=$ARGV[2];
-my $bac_db= $ARGV[3];
+our $virus_db=$ARGV[2];
+our $bac_db= $ARGV[3];
 my $blast_output_file = $ARGV[4];
 my $scan_output_file = $ARGV[5];
 my $flag= $ARGV[$#ARGV];
@@ -35,67 +35,30 @@ while(<IN>){
 	}
 }
 close IN;
-
+my $tt = time();
+open(IN, "$virus_db") or die "Cannot open $virus_db";
 my %hash_virus_database = ();
-my @need_virus_array = ();
-if (-e $scan_output_file ){
-	my $content = '';
-	open(IN1, $scan_output_file);
-	while(<IN1>){
-		$content .= $_;
-	}
-	close IN1;
-	@need_virus_array = $content =~ /gi\|(\d+)\|ref/sg;
-}
-print "size of need_virus_array ". (scalar @need_virus_array). "\n";
-my $coun1 = 0;
-if (scalar @need_virus_array != 0){
-	my $regex_str = join("|", @need_virus_array);
-	my $need_records = `grep -E "$regex_str" $virus_db`;
-	my @record_array = split("\n", $need_records);
-	foreach my $r (@record_array){
-		if ($r =~/gi\|(\d+)\|\w{3}\|\S+\|\s*(.*)/ ){
-			$hash_virus_database{$1} = $2;
-			$coun1++;
-		}
+while(<IN>){
+	if ($_=~/gi\|(\d+)\|\w{3}\|\S+\|\s*(.*?)\n/){
+		$hash_virus_database{$1} = $2;
 	}
 }
-print "yield coun1 = $coun1\n";
+close IN;
+print "read in $virus_db, time ". (time()-$tt). " seconds\n";
 my %hash_non_hit_blast_data=();
-my %hash_bac_database=();
+
+open(BAC_DB_IN, "$bac_db") or die "Cannot open $bac_db";
 my %hash_faa_data=();
 if ($NC eq 'NC_000000' or $flag eq '-s'){
-	my @need_bac_array = ();
 	if (-s $blast_output_file){
 		open(IN1, $blast_output_file) or die "Failed to open file: $!\n";
 		while(<IN1>) { 
 			chomp; 
 			if ($_=~/^gi\|(\d+)\|.*?gi\|(\d+)\|.*?\s+(\S+)\s+[\d\.]+$/){
 				$hash_non_hit_blast_data{$1}="$2 $3" if (!defined $hash_non_hit_blast_data{$1});
-				push  @need_bac_array, $2;
 			}
 		} 
 		close IN1;
-	}
-	my $count2 = 0;
-	print "size of need_bac_array ". (scalar @need_bac_array). "\n";
-	if (scalar @need_bac_array != 0){
-		# grep too slow when regex is too long
-		my $regex_str = join("|", @need_bac_array);
-		my $command = "grep -E $regex_str $bac_db";
-		print "$command\n";
-		my $need_records = `$command`;
-		my @record_array = split("\n", $need_records);
-		 # >gi|158333235|ref|YP_001514407.1| hypothetical protein AM1_0004 [Acaryochloris marina MBIC11017]
-		foreach my $r (@record_array){
-			if($r =~/(gi\|(\d+)\|\w{3}\|\S+\|)\s*(.*)/s) {
-				my $k = $2;
-				my $desc="$3 $1";$desc=~s/<*>*\d+\.\.<*>*\d+//;
-				$hash_bac_database{$k}=$desc;
-				$count2++;		
-			}
-		}
-		print "yield count2 = $count2\n";
 	}
 }else{
 	open(IN, "../$num.faa") or die "Cannot open ../$num.faa";
@@ -114,16 +77,17 @@ if ($NC eq 'NC_000000' or $flag eq '-s'){
 }
 
 if (-e $scan_output_file){
-	get_annotation($scan_output_file, \%hash_non_hit_blast_data, $num, \%hash_virus_database, \%hash_ptt_data, \%hash_bac_database, \%hash_faa_data);
+	get_annotation($scan_output_file, \%hash_non_hit_blast_data, $num, \%hash_virus_database, \%hash_ptt_data, \*BAC_DB_IN, \%hash_faa_data);
 	print "  Change $scan_output_file \n";
 }
+close BAC_DB_IN;
 my $diff_time = time()- $t1;
 print "Finish annotation.pl in $diff_time seconds\n\n";
 exit(0);
 
 # get annotation on specified file.
 sub get_annotation{
-	my ($scan_output_file ,$hash_non_hit_blast_data, $num, $hash_virus_database, $hash_ptt_data, $hash_bac_database, $hash_faa_hash)=@_;
+	my ($scan_output_file ,$hash_non_hit_blast_data, $num, $hash_virus_database, $hash_ptt_data, $bac_db_fh, $hash_faa_hash)=@_;
 	#my $title = `cat ../$num.fna`;
 	my $title = '';
 	open(TI, "<../$num.fna") or die "Cannot open file $!";
@@ -161,7 +125,7 @@ sub get_annotation{
 			#............................................................................................................................................................................
  			#                           [ANNO] -; pp_01611
 
-			$next_line = <IN>;
+			$next_line = <IN>; $desc =~s/\n//g;
 			$next_line=~s/\[ANNO\].*?;\s*(\S+)/\[ANNO\] $desc; $1; $phage_suffix/; # [ANNO] -; pp_01713  ---> [ANNO] integrase, putative; pp_1532; phage
 			#print $next_line."\n";
 			#exit;
@@ -192,9 +156,10 @@ sub get_annotation{
 			if ($gi ne ''){
 				$desc = 'N/A';
 				if ($NC eq 'NC_000000' or $flag eq '-s' ){
-					if(defined $hash_bac_database->{$gi}){
-						$desc=$hash_bac_database->{$gi};
-					}
+				#	if(defined $hash_bac_database->{$gi}){
+				#		$desc=$hash_bac_database->{$gi};
+				#	}
+					$desc = get_decs_from_bac_db($bac_db_fh, $gi);
 				}else{
 					#>gi|16273379|ref|NP_439626.1| hypothetical protein, complement(1559375..1559734) [Haemophilus influenzae Rd KW20]
 					if (defined $hash_faa_data->{$gi}){
@@ -202,7 +167,7 @@ sub get_annotation{
 					}
 				}
 				
-				$desc =~s/\.$//;
+				$desc =~s/\.$//; $desc =~s/\n//g;
 				$line=~s/\[ANNO\]\s*-.*?;\s*([\w_]+\d+)/\[ANNO\] $desc; E-VALUE = $e; $1/i; #  # [ANNO] -; pp_01713 ---> [ANNO] protein; pp_1542; hypothetical
 			}else{# gi is ''
 				#967646     01049              [ANNO] -; BASYS_01049
@@ -228,4 +193,33 @@ sub get_annotation{
 	close OUT;
 	unlink "$scan_output_file.tmp";
 }
+
+sub get_decs_from_bac_db{
+	my ($fh, $gi) = @_;
+       my $t1 = time;
+        my $rc = `grep '^$gi' $bac_db\.ind -A1`;
+        my ($start_index, $end_index) = $rc =~ /^\d+\s+(\d+)\n\d+\s+(\d+)/s;
+#        print "time = ".(time-$t1)."\n";
+        $t1 = time;
+ #       print "start_index, $start_index, end_index, $end_index\n";
+        if (defined $start_index and defined $end_index){
+     		my $len = $end_index - $start_index;
+      		my $str;
+      		seek($fh, $start_index, 0);
+      		read($fh, $str, $len);
+               #>gi|158333234|ref|YP_001514406.1| NUDIX hydrolase [Acaryochloris marina MBIC11017]
+ 		if ($str =~ m/>(gi\|\d+\|ref\|.*?\|)\s+(.*)/s){
+			my $h = $1;
+			my $desc = $2; $desc=~s/\n//;
+	#		print "$desc. $h\n";
+  #   print "time = ". (time - $t1) ."\n";
+			return "$desc. $h";
+                }else{
+                        die "Cannot return desc for $gi!\n";
+		}
+        }else{
+		die "Cannot return desc for $gi!\n";
+	}
+}
+
 

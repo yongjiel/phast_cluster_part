@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+use lib "/home/prion/phage/bioperl-bioperl-live-f568464";
 
 use Bio::Perl;
 use Bio::DB::GenBank;
